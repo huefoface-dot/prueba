@@ -312,10 +312,22 @@ let catSel = '';
 let mIdx   = -1;
 let filtros= new Set();
 
-function save(){ localStorage.setItem('g_regs',JSON.stringify(regs)); }
-function saveCats(){
-  localStorage.setItem('g_catsG',JSON.stringify(catsG));
-  localStorage.setItem('g_catsI',JSON.stringify(catsI));
+async function syncFirebase(){
+
+  await setDoc(window.docRef,{
+    regs,
+    catsG,
+    catsI
+  });
+
+}
+
+async function save(){
+  await syncFirebase();
+}
+
+async function saveCats(){
+  await syncFirebase();
 }
 
 // ── Fecha ───────────────────────────────────────────────────────
