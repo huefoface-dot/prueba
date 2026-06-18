@@ -248,7 +248,26 @@ input[type="date"]{width:100%;background:var(--surface2);border:1.5px solid var(
     <button class="btn-del" onclick="eliminar()">Eliminar registro</button>
   </div>
 </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyAOuJYhfl6-FX-PY1rJJsHTSUT1T_C_GZw",
+  authDomain: "gastos-76ac4.firebaseapp.com",
+  projectId: "gastos-76ac4",
+  storageBucket: "gastos-76ac4.firebasestorage.app",
+  messagingSenderId: "465350630307",
+  appId: "1:465350630307:web:ce52bb2335662714d69816"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.db = db;
+
+console.log("Firebase conectado");
+</script>
 <script>
 // ── Categorías por defecto ──────────────────────────────────────
 const DEFAULT_GASTO = ['Alarma','Alimentación','Apple y Tecnología','Bares y Restaurantes',
