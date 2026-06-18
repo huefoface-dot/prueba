@@ -277,9 +277,9 @@ const ICONS = {'Alimentación':'🛒','Mercadona':'🛒','Consum':'🛒','Carnic
 function ico(c){ return ICONS[c]||'📌'; }
 
 // ── Estado ──────────────────────────────────────────────────────
-let regs   = JSON.parse(localStorage.getItem('g_regs')||'[]');
-let catsG  = JSON.parse(localStorage.getItem('g_catsG')||JSON.stringify(DEFAULT_GASTO));
-let catsI  = JSON.parse(localStorage.getItem('g_catsI')||JSON.stringify(DEFAULT_INGRESO));
+let regs = [];
+let catsG = [...DEFAULT_GASTO];
+let catsI = [...DEFAULT_INGRESO];);
 let tipo   = 'Gasto';
 let catSel = '';
 let mIdx   = -1;
