@@ -250,7 +250,14 @@ input[type="date"]{width:100%;background:var(--surface2);border:1.5px solid var(
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAOuJYhfl6-FX-PY1rJJsHTSUT1T_C_GZw",
