@@ -549,7 +549,44 @@ function updateHeader(){
 }
 
 // ── Init ────────────────────────────────────────────────────────
-setHoy(); buildGrid(); updateHeader();
+// ── Init Firebase ───────────────────────────────────────────────
+
+async function initFirebase(){
+
+  const snap = await getDoc(window.docRef);
+
+  if(!snap.exists()){
+
+    await setDoc(window.docRef,{
+      regs:[],
+      catsG:DEFAULT_GASTO,
+      catsI:DEFAULT_INGRESO
+    });
+
+  }
+
+  onSnapshot(window.docRef,(docSnap)=>{
+
+    const data = docSnap.data();
+
+    regs = data.regs || [];
+    catsG = data.catsG || [...DEFAULT_GASTO];
+    catsI = data.catsI || [...DEFAULT_INGRESO];
+
+    buildGrid();
+    updateHeader();
+
+    if(typeof renderAjustes==="function"){
+      renderAjustes();
+    }
+
+  });
+
+  setHoy();
+
+}
+
+initFirebase();
 </script>
 </body>
 </html>
