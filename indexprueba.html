@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gastos">
+<title>Gastos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0f;--surface:#14141c;--surface2:#1c1c28;--surface3:#24243a;
+  --border:#2a2a40;--accent:#7c6af7;--accent2:#9d8fff;--green:#34c759;
+  --red:#ff453a;--text:#f0f0ff;--muted:#7070a0;--card:#1a1a28;
+  --safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top)}
+.header{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
+.header-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.btn-export{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--accent2);cursor:pointer}
+.btn-export:active{opacity:.7}
+.tabs{display:flex;padding:0 20px 12px;gap:8px;flex-shrink:0}
+.tab{flex:1;padding:9px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.panel{display:none;flex:1;overflow:hidden;flex-direction:column}
+.panel.active{display:flex}
+
+/* FORM */
+.form-scroll{flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch}
+.form-section{margin-bottom:20px}
+.form-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;padding-left:4px}
+.tipo-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tipo-btn{padding:14px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface2);font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s}
+.tipo-btn.ag{background:rgba(255,69,58,.12);border-color:var(--red);color:var(--red)}
+.tipo-btn.ai{background:rgba(52,199,89,.12);border-color:var(--green);color:var(--green)}
+.fecha-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+input[type="date"]{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;font-size:16px;font-weight:500;color:var(--text);-webkit-appearance:none;color-scheme:dark}
+.fecha-hoy{background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:14px;font-size:13px;font-weight:600;color:var(--accent2);cursor:pointer;white-space:nowrap}
+.fecha-hoy:active{opacity:.7}
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.cat-btn{padding:11px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;text-align:left;transition:all .12s;line-height:1.3}
+.cat-btn.sel{background:rgba(124,106,247,.15);border-color:var(--accent);color:var(--accent2)}
+.cat-btn:active{opacity:.7}
+.importe-wrap{background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;display:flex;align-items:center;padding:0 16px}
+.importe-sym{font-size:22px;font-weight:300;color:var(--muted);margin-right:8px}
+.importe-input{flex:1;background:none;border:none;outline:none;font-size:26px;font-weight:600;color:var(--text);padding:14px 0;width:100%}
+.importe-input::placeholder{color:var(--muted)}
+.notas-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;font-size:15px;color:var(--text);resize:none;outline:none;font-family:inherit;min-height:80px}
+.notas-input::placeholder{color:var(--muted)}
+.btn-guardar{width:100%;padding:17px;background:var(--accent);border:none;border-radius:16px;font-size:17px;font-weight:700;color:#fff;cursor:pointer;margin-top:4px}
+.btn-guardar:active{opacity:.85;transform:scale(.98)}
+
+/* HISTORIAL */
+.summary-bar{padding:12px 20px;display:flex;gap:8px;flex-shrink:0;border-top:1px solid var(--border)}
+.sum-item{flex:1;background:var(--surface2);border-radius:12px;padding:10px 10px}
+.sum-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sum-val{font-size:15px;font-weight:700;margin-top:2px}
+.sum-val.g{color:var(--red)}.sum-val.i{color:var(--green)}.sum-val.b{color:var(--accent2)}
+.hist-toolbar{padding:0 20px 10px;display:flex;gap:8px;flex-shrink:0}
+.hist-search{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;font-family:inherit}
+.hist-search::placeholder{color:var(--muted)}
+.filt-btn{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 11px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.filt-btn.on{border-color:var(--accent);color:var(--accent2)}
+.hist-list{flex:1;overflow-y:auto;padding:0 20px;-webkit-overflow-scrolling:touch}
+.hist-group{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:16px 0 8px}
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.hist-item:active{opacity:.7}
+.hist-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hist-info{flex:1;min-width:0}
+.hist-cat{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-nota{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-fecha{font-size:11px;color:var(--muted);margin-top:3px}
+.hist-amt{font-size:17px;font-weight:700;flex-shrink:0}
+.hist-amt.g{color:var(--red)}.hist-amt.i{color:var(--green)}
+.hist-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:15px}
+
+/* AJUSTES */
+.ajustes-scroll{flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch}
+.ajuste-section{margin-bottom:24px}
+.ajuste-section-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;padding-left:4px}
+.add-cat-row{display:flex;gap:8px;margin-bottom:12px}
+.add-cat-input{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:15px;color:var(--text);outline:none;font-family:inherit}
+.add-cat-input:focus{border-color:var(--accent)}
+.add-cat-input::placeholder{color:var(--muted)}
+.btn-add{background:var(--accent);border:none;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap}
+.btn-add:active{opacity:.7}
+.cat-list-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.cat-list-name{font-size:14px;font-weight:500}
+.btn-del-cat{background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--red);cursor:pointer}
+.btn-del-cat:active{opacity:.7}
+.export-section{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px}
+.export-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.export-label{font-size:14px;font-weight:500}
+.export-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.btn-big{width:100%;padding:15px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px}
+.btn-big.primary{background:var(--accent);color:#fff}
+.btn-big.danger{background:rgba(255,69,58,.12);border:1px solid var(--red);color:var(--red)}
+.btn-big:active{opacity:.7}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px calc(20px + var(--safe-bot));width:100%;transform:translateY(100%);transition:transform .25s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.modal-tipo{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.modal-cat{font-size:22px;font-weight:700;margin-bottom:4px}
+.modal-amt{font-size:34px;font-weight:800;margin-bottom:16px}
+.modal-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px}
+.modal-row:last-of-type{border-bottom:none}
+.modal-rl{color:var(--muted)}
+.modal-rv{font-weight:500;max-width:60%;text-align:right}
+.btn-del{width:100%;padding:14px;background:rgba(255,69,58,.12);border:1px solid var(--red);border-radius:14px;font-size:15px;font-weight:700;color:var(--red);cursor:pointer;margin-top:16px}
+.btn-del:active{opacity:.7}
+
+.toast{position:fixed;top:calc(var(--safe-top) + 60px);left:50%;transform:translateX(-50%) translateY(-20px);background:var(--green);color:#fff;padding:12px 20px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:100;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red)}
+.safe-bot{height:var(--safe-bot);flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div><h1>Gastos</h1><div class="header-sub" id="hSub">—</div></div>
+    <button class="btn-export" onclick="exportCSV()">↓ CSV</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="goTab(0,this)">+ Nuevo</div>
+    <div class="tab" onclick="goTab(1,this)">Historial</div>
+    <div class="tab" onclick="goTab(2,this)">⚙️ Ajustes</div>
+  </div>
+
+  <!-- NUEVO -->
+  <div class="panel active" id="p0">
+    <div class="form-scroll">
+      <div class="form-section">
+        <div class="form-label">Tipo</div>
+        <div class="tipo-toggle">
+          <div class="tipo-btn ag" id="btnG" onclick="setTipo('Gasto')">💸 Gasto</div>
+          <div class="tipo-btn" id="btnI" onclick="setTipo('Ingreso')">💰 Ingreso</div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-label">Fecha</div>
+        <div class="fecha-row">
+          <input type="date" id="fechaIn">
+          <div class="fecha-hoy" onclick="setHoy()">Hoy</div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-label">Categoría</div>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+      <div class="form-section">
+        <div class="form-label">Importe</div>
+        <div class="importe-wrap">
+          <span class="importe-sym">€</span>
+          <input class="importe-input" type="number" id="impIn" placeholder="0,00" step="0.01" min="0" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-label">Observaciones</div>
+        <textarea class="notas-input" id="notasIn" placeholder="Opcional..."></textarea>
+      </div>
+      <button class="btn-guardar" onclick="guardar()">Guardar registro</button>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="panel" id="p1">
+    <div class="summary-bar">
+      <div class="sum-item"><div class="sum-label">Gastos</div><div class="sum-val g" id="sG">—</div></div>
+      <div class="sum-item"><div class="sum-label">Ingresos</div><div class="sum-val i" id="sI">—</div></div>
+      <div class="sum-item"><div class="sum-label">Balance</div><div class="sum-val b" id="sB">—</div></div>
+    </div>
+    <div class="hist-toolbar">
+      <input class="hist-search" id="hSearch" placeholder="Buscar..." oninput="renderHist()">
+      <div class="filt-btn" id="fG" onclick="tFilt('Gasto')">Gastos</div>
+      <div class="filt-btn" id="fI" onclick="tFilt('Ingreso')">Ingresos</div>
+    </div>
+    <div class="hist-list" id="hList"></div>
+  </div>
+
+  <!-- AJUSTES -->
+  <div class="panel" id="p2">
+    <div class="ajustes-scroll">
+
+      <div class="ajuste-section">
+        <div class="ajuste-section-title">Categorías de Gasto</div>
+        <div class="add-cat-row">
+          <input class="add-cat-input" id="newCatG" placeholder="Nueva categoría...">
+          <button class="btn-add" onclick="addCat('Gasto')">+ Añadir</button>
+        </div>
+        <div id="listCatG"></div>
+      </div>
+
+      <div class="ajuste-section">
+        <div class="ajuste-section-title">Categorías de Ingreso</div>
+        <div class="add-cat-row">
+          <input class="add-cat-input" id="newCatI" placeholder="Nueva categoría...">
+          <button class="btn-add" onclick="addCat('Ingreso')">+ Añadir</button>
+        </div>
+        <div id="listCatI"></div>
+      </div>
+
+      <div class="ajuste-section">
+        <div class="ajuste-section-title">Exportar e importar</div>
+        <div class="export-section">
+          <div class="export-row">
+            <div><div class="export-label">Registros guardados</div><div class="export-sub" id="nRegs">—</div></div>
+          </div>
+          <button class="btn-big primary" onclick="exportCSV()">↓ Exportar CSV</button>
+          <button class="btn-big danger" onclick="borrarTodo()" style="margin-top:8px">⚠️ Borrar todos los datos</button>
+        </div>
+      </div>
+
+      <div class="ajuste-section">
+        <div class="ajuste-section-title">Copia de seguridad completa</div>
+        <div class="export-section">
+          <div class="export-sub" style="margin-bottom:12px">Usa esto si vas a abrir la app desde una nueva dirección y quieres conservar tu historial y categorías.</div>
+          <button class="btn-big primary" onclick="exportBackup()">↓ Descargar copia de seguridad</button>
+          <button class="btn-big" style="margin-top:8px;background:var(--surface3);color:var(--accent2)" onclick="document.getElementById('fileImport').click()">↑ Restaurar copia de seguridad</button>
+          <input type="file" id="fileImport" accept=".json" style="display:none" onchange="importBackup(event)">
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <div class="safe-bot"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="mOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-tipo" id="mTipo"></div>
+    <div class="modal-cat" id="mCat"></div>
+    <div class="modal-amt" id="mAmt"></div>
+    <div class="modal-row"><span class="modal-rl">Fecha</span><span class="modal-rv" id="mFecha"></span></div>
+    <div class="modal-row"><span class="modal-rl">Notas</span><span class="modal-rv" id="mNotas"></span></div>
+    <button class="btn-del" onclick="eliminar()">Eliminar registro</button>
+  </div>
+</div>
+</div>
+
+<script type="module">
+... código Firebase ...
+</script>
+
+<script>
+// ── Categorías por defecto ──────────────────────────────────────
+const DEFAULT_GASTO = ...
+<script>
+// ── Categorías por defecto ──────────────────────────────────────
+const DEFAULT_GASTO = ['Alarma','Alimentación','Apple y Tecnología','Bares y Restaurantes',
+  'Belleza','Carnicería','Consum','Convenio Especial','Deportes y Hobbies','Educación',
+  'Efectivo','Efectivo Lola','El Corte Inglés','Entretenimiento','Fiestas La Cabra',
+  'Gas','Gasolina','Hogar','Horno','Loterías','Lotería La Cabra','Luz','Mercadona',
+  'Otros','Peluquería','Préstamos','Regalos','Revisiones y Reparaciones','Ropa y Calzado',
+  'Sacar Dinero','Salud','Seguro Casa','Seguro Coche','Seguro Decesos','Seguro de Vida',
+  'Seguro Salud','Tarjetas CaixaBank','Tarjetas Externas','Teléfonos','Transporte','Viaje'];
+
+const DEFAULT_INGRESO = ['Dinero Lola','Nómina','Otros ingresos'];
+
+const ICONS = {'Alimentación':'🛒','Mercadona':'🛒','Consum':'🛒','Carnicería':'🥩',
+  'Bares y Restaurantes':'🍽️','Horno':'🥖','Hogar':'🏠','Gas':'🔥','Luz':'💡',
+  'Gasolina':'⛽','Transporte':'🚗','Seguro Coche':'🚗','Salud':'❤️',
+  'Seguro Salud':'❤️','Seguro de Vida':'❤️','Seguro Decesos':'❤️',
+  'Deportes y Hobbies':'⚽','Entretenimiento':'🎬','Ropa y Calzado':'👗',
+  'Belleza':'💄','Peluquería':'✂️','Educación':'📚','Apple y Tecnología':'📱',
+  'Teléfonos':'📱','Viaje':'✈️','Regalos':'🎁','Loterías':'🎰',
+  'Lotería La Cabra':'🎰','Fiestas La Cabra':'🎉','El Corte Inglés':'🛍️',
+  'Efectivo':'💵','Efectivo Lola':'💵','Sacar Dinero':'🏧','Préstamos':'💳',
+  'Tarjetas CaixaBank':'💳','Tarjetas Externas':'💳','Alarma':'🔒',
+  'Seguro Casa':'🏠','Convenio Especial':'📋','Revisiones y Reparaciones':'🔧',
+  'Nómina':'💼','Otros ingresos':'💰','Dinero Lola':'💰'};
+
+function ico(c){ return ICONS[c]||'📌'; }
+
+// ── Estado ──────────────────────────────────────────────────────
+let regs   = JSON.parse(localStorage.getItem('g_regs')||'[]');
+let catsG  = JSON.parse(localStorage.getItem('g_catsG')||JSON.stringify(DEFAULT_GASTO));
+let catsI  = JSON.parse(localStorage.getItem('g_catsI')||JSON.stringify(DEFAULT_INGRESO));
+let tipo   = 'Gasto';
+let catSel = '';
+let mIdx   = -1;
+let filtros= new Set();
+
+async function save(){
+
+  localStorage.setItem('g_regs',JSON.stringify(regs));
+
+  await window.setDoc(window.docRef,{
+    regs,
+    catsG,
+    catsI,
+    updated: Date.now()
+  });
+}
+async function save(){
+
+  localStorage.setItem('g_regs',JSON.stringify(regs));
+
+  await window.setDoc(window.docRef,{
+    regs,
+    catsG,
+    catsI,
+    updated: Date.now()
+  });
+}
+// ── Fecha ───────────────────────────────────────────────────────
+function today(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(s){
+  if(!s)return''; const[y,m,d]=s.split('-'); return`${d}/${m}/${y}`;
+}
+function setHoy(){ document.getElementById('fechaIn').value=today(); }
+
+// ── Tipo ────────────────────────────────────────────────────────
+function setTipo(t){
+  tipo=t; catSel='';
+  document.getElementById('btnG').className='tipo-btn'+(t==='Gasto'?' ag':'');
+  document.getElementById('btnI').className='tipo-btn'+(t==='Ingreso'?' ai':'');
+  buildGrid();
+}
+
+// ── Grid categorías ─────────────────────────────────────────────
+function buildGrid(){
+  const cats=tipo==='Gasto'?catsG:catsI;
+  document.getElementById('catGrid').innerHTML=
+    cats.map(c=>`<div class="cat-btn${catSel===c?' sel':''}" onclick="selCat('${c.replace(/'/g,"\\'")}')">${ico(c)} ${c}</div>`).join('');
+}
+function selCat(c){ catSel=c; buildGrid(); }
+
+// ── Guardar ─────────────────────────────────────────────────────
+function guardar(){
+  const fecha=document.getElementById('fechaIn').value;
+  const imp=parseFloat(document.getElementById('impIn').value);
+  const notas=document.getElementById('notasIn').value.trim();
+  if(!fecha){ toast('Elige una fecha','err'); return; }
+  if(!catSel){ toast('Elige una categoría','err'); return; }
+  if(!imp||imp<=0){ toast('Introduce un importe','err'); return; }
+  regs.unshift({id:Date.now(),fecha,tipo,categoria:catSel,importe:Math.round(imp*100)/100,notas});
+  save();
+  toast(`✓ ${catSel} — ${eur(regs[0].importe)}`);
+  document.getElementById('impIn').value='';
+  document.getElementById('notasIn').value='';
+  catSel=''; buildGrid(); updateHeader();
+}
+
+// ── Tabs ────────────────────────────────────────────────────────
+function goTab(i,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('p'+i).classList.add('active');
+  if(i===1) renderHist();
+  if(i===2) renderAjustes();
+}
+
+// ── Historial ───────────────────────────────────────────────────
+function tFilt(t){
+  if(filtros.has(t))filtros.delete(t);else filtros.add(t);
+  document.getElementById('f'+t[0]).classList.toggle('on',filtros.has(t));
+  renderHist();
+}
+function renderHist(){
+  const q=document.getElementById('hSearch').value.toLowerCase();
+  const list=regs.filter(r=>{
+    if(filtros.size&&!filtros.has(r.tipo))return false;
+    if(q&&!r.categoria.toLowerCase().includes(q)&&!(r.notas||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  const tG=regs.filter(r=>r.tipo==='Gasto').reduce((s,r)=>s+r.importe,0);
+  const tI=regs.filter(r=>r.tipo==='Ingreso').reduce((s,r)=>s+r.importe,0);
+  const bal=tI-tG;
+  document.getElementById('sG').textContent=eur(tG);
+  document.getElementById('sI').textContent=eur(tI);
+  const bEl=document.getElementById('sB');
+  bEl.textContent=(bal>=0?'+':'')+eur(Math.abs(bal));
+  bEl.style.color=bal>=0?'var(--green)':'var(--red)';
+  if(!list.length){document.getElementById('hList').innerHTML='<div class="hist-empty">Sin registros</div>';return;}
+  const MESES=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const groups={};
+  list.forEach(r=>{const[y,m]=r.fecha.split('-');const k=`${y}-${m}`;if(!groups[k])groups[k]=[];groups[k].push(r);});
+  document.getElementById('hList').innerHTML=Object.keys(groups).sort().reverse().map(k=>{
+    const[y,m]=k.split('-');
+    return`<div class="hist-group">${MESES[+m]} ${y}</div>`+
+      groups[k].map(r=>{
+        const idx=regs.indexOf(r);
+        return`<div class="hist-item" onclick="openModal(${idx})">
+          <div class="hist-icon" style="background:${r.tipo==='Gasto'?'rgba(255,69,58,.12)':'rgba(52,199,89,.12)'}">${ico(r.categoria)}</div>
+          <div class="hist-info">
+            <div class="hist-cat">${r.categoria}</div>
+            ${r.notas?`<div class="hist-nota">${r.notas}</div>`:''}
+            <div class="hist-fecha">${fmtDate(r.fecha)}</div>
+          </div>
+          <div class="hist-amt ${r.tipo==='Gasto'?'g':'i'}">${r.tipo==='Gasto'?'−':'+'}${eur(r.importe)}</div>
+        </div>`;
+      }).join('');
+  }).join('');
+}
+
+// ── Modal ───────────────────────────────────────────────────────
+function openModal(idx){
+  mIdx=idx; const r=regs[idx];
+  document.getElementById('mTipo').textContent=r.tipo.toUpperCase();
+  document.getElementById('mTipo').style.color=r.tipo==='Gasto'?'var(--red)':'var(--green)';
+  document.getElementById('mCat').textContent=ico(r.categoria)+' '+r.categoria;
+  document.getElementById('mAmt').textContent=(r.tipo==='Gasto'?'−':'+')+'€'+r.importe.toFixed(2);
+  document.getElementById('mAmt').style.color=r.tipo==='Gasto'?'var(--red)':'var(--green)';
+  document.getElementById('mFecha').textContent=fmtDate(r.fecha);
+  document.getElementById('mNotas').textContent=r.notas||'—';
+  document.getElementById('mOverlay').classList.add('open');
+}
+function closeModal(e){ if(e.target===document.getElementById('mOverlay'))document.getElementById('mOverlay').classList.remove('open'); }
+function eliminar(){
+  if(mIdx<0)return;
+  if(!confirm('¿Eliminar este registro?'))return;
+  regs.splice(mIdx,1); save();
+  document.getElementById('mOverlay').classList.remove('open');
+  renderHist(); updateHeader(); toast('Registro eliminado');
+}
+
+// ── Ajustes ─────────────────────────────────────────────────────
+function renderAjustes(){
+  document.getElementById('nRegs').textContent=`${regs.length} registros guardados`;
+  ['G','I'].forEach(t=>{
+    const cats=t==='G'?catsG:catsI;
+    document.getElementById('listCat'+t).innerHTML=cats.map((c,i)=>
+      `<div class="cat-list-item">
+        <span class="cat-list-name">${ico(c)} ${c}</span>
+        <button class="btn-del-cat" onclick="delCat('${t==='G'?'Gasto':'Ingreso'}',${i})">Eliminar</button>
+      </div>`
+    ).join('');
+  });
+}
+
+function addCat(tipo){
+  const id=tipo==='Gasto'?'newCatG':'newCatI';
+  const val=document.getElementById(id).value.trim();
+  if(!val){ toast('Escribe un nombre','err'); return; }
+  if(tipo==='Gasto'){
+    if(catsG.includes(val)){ toast('Ya existe','err'); return; }
+    catsG.push(val); catsG.sort();
+  } else {
+    if(catsI.includes(val)){ toast('Ya existe','err'); return; }
+    catsI.push(val); catsI.sort();
+  }
+  saveCats();
+  document.getElementById(id).value='';
+  renderAjustes();
+  toast(`Categoría "${val}" añadida`);
+}
+
+function delCat(tipo,idx){
+  const cats=tipo==='Gasto'?catsG:catsI;
+  const nombre=cats[idx];
+  if(!confirm(`¿Eliminar la categoría "${nombre}"?`))return;
+  cats.splice(idx,1); saveCats(); renderAjustes();
+  toast(`Categoría eliminada`);
+}
+
+function borrarTodo(){
+  if(!confirm('¿Borrar TODOS los registros? Esta acción no se puede deshacer.'))return;
+  regs=[]; save(); renderAjustes(); updateHeader();
+  toast('Todos los datos eliminados');
+}
+
+// ── Export CSV ──────────────────────────────────────────────────
+function exportCSV(){
+  if(!regs.length){ toast('Sin datos para exportar','err'); return; }
+  const csv='\uFEFFFecha;Tipo;Categoria;Importe;Observaciones\n'+
+    regs.map(r=>`${fmtDate(r.fecha)};${r.tipo};${r.categoria};${r.importe.toFixed(2).replace('.',',')};${r.notas||''}`).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`gastos_${today()}.csv`; a.click();
+  toast('CSV exportado ✓');
+}
+
+// ── Backup completo (registros + categorías) ──────────────────
+function exportBackup(){
+  const backup={regs,catsG,catsI,exportado:new Date().toISOString()};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}));
+  a.download=`gastos_backup_${today()}.json`; a.click();
+  toast('Copia de seguridad descargada ✓');
+}
+function importBackup(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!Array.isArray(data.regs)) throw new Error('formato inválido');
+      if(!confirm(`Esto reemplazará tus datos actuales con ${data.regs.length} registros del backup. ¿Continuar?`))return;
+      regs=data.regs;
+      if(Array.isArray(data.catsG)) catsG=data.catsG;
+      if(Array.isArray(data.catsI)) catsI=data.catsI;
+      save(); saveCats();
+      renderAjustes(); updateHeader();
+      toast('Copia de seguridad restaurada ✓');
+    }catch(err){
+      toast('Archivo no válido','err');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+// ── Helpers ─────────────────────────────────────────────────────
+function eur(n){ return n.toFixed(2).replace('.',',')+' €'; }
+function toast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(type?' '+type:'')+' show';
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+function updateHeader(){
+  const h=today(); const[y,m]=h.split('-');
+  const mes=regs.filter(r=>r.fecha.startsWith(y+'-'+m));
+  const g=mes.filter(r=>r.tipo==='Gasto').reduce((s,r)=>s+r.importe,0);
+  const MESES=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('hSub').textContent=`${MESES[+m]} — ${mes.length} registros · ${eur(g)} en gastos`;
+}
+async function initFirebase(){
+
+  const snap = await window.getDoc(window.docRef);
+
+  if(snap.exists()){
+
+    const data = snap.data();
+
+    regs = data.regs || [];
+    catsG = data.catsG || DEFAULT_GASTO;
+    catsI = data.catsI || DEFAULT_INGRESO;
+
+    buildGrid();
+    updateHeader();
+  }
+
+  window.onSnapshot(window.docRef,(snap)=>{
+
+    if(!snap.exists()) return;
+
+    const data = snap.data();
+
+    regs = data.regs || [];
+    catsG = data.catsG || DEFAULT_GASTO;
+    catsI = data.catsI || DEFAULT_INGRESO;
+
+    buildGrid();
+
+    if(document.getElementById('p1').classList.contains('active'))
+      renderHist();
+
+    if(document.getElementById('p2').classList.contains('active'))
+      renderAjustes();
+
+    updateHeader();
+  });
+}
+// ── Init ────────────────────────────────────────────────────────
+setHoy();
+buildGrid();
+updateHeader();
+
+initFirebase();
+</script>
+</body>
+</html>
