@@ -554,13 +554,13 @@ window.onSnapshot = onSnapshot;
     document.getElementById('hSub').textContent=`${MESES[+m]} — ${mes.length} registros · ${eur(g)} en gastos`;
   }
   async function initFirebase(){
-  
+  console.log("Firebase iniciado");
     const snap = await window.getDoc(window.docRef);
-  
+  console.log("Existe documento:", snap.exists());
     if(snap.exists()){
   
       const data = snap.data();
-  
+  console.log(data);
       regs = data.regs || [];
       catsG = data.catsG || DEFAULT_GASTO;
       catsI = data.catsI || DEFAULT_INGRESO;
