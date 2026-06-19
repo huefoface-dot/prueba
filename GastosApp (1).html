@@ -273,7 +273,9 @@ const db = getFirestore(app);
 
 window.db = db;
 window.docRef = doc(db, "config", "app");
-
+window.setDoc = setDoc;
+window.getDoc = getDoc;
+window.onSnapshot = onSnapshot;
 console.log("Firebase conectado");
 </script>
 <script>
