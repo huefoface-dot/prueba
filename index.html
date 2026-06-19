@@ -553,22 +553,26 @@ window.onSnapshot = onSnapshot;
     const MESES=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     document.getElementById('hSub').textContent=`${MESES[+m]} — ${mes.length} registros · ${eur(g)} en gastos`;
   }
-  async function initFirebase(){
-  console.log("Firebase iniciado");
-    const snap = await window.getDoc(window.docRef);
-  console.log("Existe documento:", snap.exists());
-    if(snap.exists()){
-  
-      const data = snap.data();
-  console.log(data);
-      regs = data.regs || [];
-      catsG = data.catsG || DEFAULT_GASTO;
-      catsI = data.catsI || DEFAULT_INGRESO;
-  
-      buildGrid();
-      updateHeader();
-    }
-  
+async function initFirebase(){
+
+  const snap = await window.getDoc(window.docRef);
+
+  alert("Existe documento: " + snap.exists());
+
+  if(snap.exists()){
+
+    const data = snap.data();
+
+    alert("Registros cargados: " + (data.regs ? data.regs.length : 0));
+
+    regs = data.regs || [];
+    catsG = data.catsG || DEFAULT_GASTO;
+    catsI = data.catsI || DEFAULT_INGRESO;
+
+    buildGrid();º
+    updateHeader();
+  }
+}
     window.onSnapshot(window.docRef,(snap)=>{
   
       if(!snap.exists()) return;
