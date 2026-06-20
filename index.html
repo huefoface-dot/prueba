@@ -569,31 +569,31 @@ async function initFirebase(){
     catsG = data.catsG || DEFAULT_GASTO;
     catsI = data.catsI || DEFAULT_INGRESO;
 
-    buildGrid();º
+    buildGrid();
     updateHeader();
   }
+
+  window.onSnapshot(window.docRef,(snap)=>{
+
+    if(!snap.exists()) return;
+
+    const data = snap.data();
+
+    regs = data.regs || [];
+    catsG = data.catsG || DEFAULT_GASTO;
+    catsI = data.catsI || DEFAULT_INGRESO;
+
+    buildGrid();
+
+    if(document.getElementById('p1').classList.contains('active'))
+      renderHist();
+
+    if(document.getElementById('p2').classList.contains('active'))
+      renderAjustes();
+
+    updateHeader();
+  });
 }
-    window.onSnapshot(window.docRef,(snap)=>{
-  
-      if(!snap.exists()) return;
-  
-      const data = snap.data();
-  
-      regs = data.regs || [];
-      catsG = data.catsG || DEFAULT_GASTO;
-      catsI = data.catsI || DEFAULT_INGRESO;
-  
-      buildGrid();
-  
-      if(document.getElementById('p1').classList.contains('active'))
-        renderHist();
-  
-      if(document.getElementById('p2').classList.contains('active'))
-        renderAjustes();
-  
-      updateHeader();
-    });
-  }
   // ── Init ────────────────────────────────────────────────────────
   setHoy();
   buildGrid();
