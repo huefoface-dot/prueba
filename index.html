@@ -554,8 +554,12 @@ window.onSnapshot = onSnapshot;
     document.getElementById('hSub').textContent=`${MESES[+m]} — ${mes.length} registros · ${eur(g)} en gastos`;
   }
 async function initFirebase(){
+document.body.style.background = "red";
 
   const snap = await window.getDoc(window.docRef);
+
+  document.body.style.background = "green";
+  
 
   if(snap.exists()){
 
