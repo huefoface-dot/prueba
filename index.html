@@ -557,13 +557,9 @@ async function initFirebase(){
 
   const snap = await window.getDoc(window.docRef);
 
-  alert("Existe documento: " + snap.exists());
-
   if(snap.exists()){
 
     const data = snap.data();
-
-    alert("Registros cargados: " + (data.regs ? data.regs.length : 0));
 
     regs = data.regs || [];
     catsG = data.catsG || DEFAULT_GASTO;
