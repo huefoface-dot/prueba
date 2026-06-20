@@ -277,6 +277,7 @@ window.getDoc = getDoc;
 window.setDoc = setDoc;
 window.onSnapshot = onSnapshot;
 </script> 
+    alert("getDoc = " + typeof window.getDoc);
     <script> 
     // ── Categorías por defecto ──────────────────────────────────────
   const DEFAULT_GASTO = ['Alarma','Alimentación','Apple y Tecnología','Bares y Restaurantes',
@@ -615,7 +616,8 @@ buildGrid();
 updateHeader();
 
 alert("VOY A LLAMAR");
-
+alert("TIPO getDoc = " + typeof window.getDoc);
+alert("TIPO docRef = " + typeof window.docRef);
 initFirebase();
 
 alert("YA LA LLAME");
