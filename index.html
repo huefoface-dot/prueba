@@ -554,45 +554,58 @@ window.onSnapshot = onSnapshot;
     document.getElementById('hSub').textContent=`${MESES[+m]} — ${mes.length} registros · ${eur(g)} en gastos`;
   }
 async function initFirebase(){
-document.body.style.background = "red";
 
-  const snap = await window.getDoc(window.docRef);
+  document.body.style.background = "red";
 
-  document.body.style.background = "green";
-  
+  try {
 
-  if(snap.exists()){
+    const snap = await window.getDoc(window.docRef);
 
-    const data = snap.data();
+    document.body.style.background = "green";
 
-    regs = data.regs || [];
-    catsG = data.catsG || DEFAULT_GASTO;
-    catsI = data.catsI || DEFAULT_INGRESO;
+    alert("Firestore conectado");
 
-    buildGrid();
-    updateHeader();
+    if(snap.exists()){
+
+      const data = snap.data();
+
+      regs = data.regs || [];
+      catsG = data.catsG || DEFAULT_GASTO;
+      catsI = data.catsI || DEFAULT_INGRESO;
+
+      buildGrid();
+      updateHeader();
+    }
+
+    window.onSnapshot(window.docRef,(snap)=>{
+
+      if(!snap.exists()) return;
+
+      const data = snap.data();
+
+      regs = data.regs || [];
+      catsG = data.catsG || DEFAULT_GASTO;
+      catsI = data.catsI || DEFAULT_INGRESO;
+
+      buildGrid();
+
+      if(document.getElementById('p1').classList.contains('active'))
+        renderHist();
+
+      if(document.getElementById('p2').classList.contains('active'))
+        renderAjustes();
+
+      updateHeader();
+    });
+
+  } catch(err){
+
+    document.body.style.background = "orange";
+
+    alert("ERROR FIREBASE:\n\n" + err.message);
+
+    console.error(err);
   }
-
-  window.onSnapshot(window.docRef,(snap)=>{
-
-    if(!snap.exists()) return;
-
-    const data = snap.data();
-
-    regs = data.regs || [];
-    catsG = data.catsG || DEFAULT_GASTO;
-    catsI = data.catsI || DEFAULT_INGRESO;
-
-    buildGrid();
-
-    if(document.getElementById('p1').classList.contains('active'))
-      renderHist();
-
-    if(document.getElementById('p2').classList.contains('active'))
-      renderAjustes();
-
-    updateHeader();
-  });
 }
   // ── Init ────────────────────────────────────────────────────────
   alert("LLEGUE AL FINAL");
