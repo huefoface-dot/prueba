@@ -272,13 +272,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.docRef = doc(db, "app", "datos");
-window.getDoc = getDoc;
-window.setDoc = setDoc;
-window.onSnapshot = onSnapshot;
 </script> 
     alert("getDoc = " + typeof window.getDoc);
-    <script> 
+<script type="module">
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const docRef = doc(db, "app", "datos");
+  
     // ── Categorías por defecto ──────────────────────────────────────
   const DEFAULT_GASTO = ['Alarma','Alimentación','Apple y Tecnología','Bares y Restaurantes',
     'Belleza','Carnicería','Consum','Convenio Especial','Deportes y Hobbies','Educación',
@@ -318,7 +319,7 @@ window.onSnapshot = onSnapshot;
   
     localStorage.setItem('g_regs',JSON.stringify(regs));
   
-    await window.setDoc(window.docRef,{
+    await setDoc(docRef,{
       regs,
       catsG,
       catsI,
@@ -330,7 +331,7 @@ window.onSnapshot = onSnapshot;
   localStorage.setItem('g_catsG',JSON.stringify(catsG));
   localStorage.setItem('g_catsI',JSON.stringify(catsI));
 
-  await window.setDoc(window.docRef,{
+  await setDoc(docRef,{
     regs,
     catsG,
     catsI,
@@ -560,7 +561,7 @@ async function initFirebase(){
 
   try {
 
-    const snap = await window.getDoc(window.docRef);
+    const snap = await getDoc(docRef);
 
     document.body.style.background = "green";
 
@@ -578,7 +579,7 @@ async function initFirebase(){
       updateHeader();
     }
 
-    window.onSnapshot(window.docRef,(snap)=>{
+    onSnapshot(docRef,(snap)=>{
 
       if(!snap.exists()) return;
 
@@ -618,6 +619,7 @@ updateHeader();
 alert("VOY A LLAMAR");
 alert("TIPO getDoc = " + typeof window.getDoc);
 alert("TIPO docRef = " + typeof window.docRef);
+  alert(typeof window.getDoc);
 initFirebase();
 
 alert("YA LA LLAME");
