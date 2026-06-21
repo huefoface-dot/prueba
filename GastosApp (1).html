@@ -286,7 +286,7 @@ let mIdx   = -1;
 let filtros= new Set();
 
 async function save(){
-alert("SAVE FIREBASE");
+
   localStorage.setItem('g_regs',JSON.stringify(regs));
 
   await window.setDoc(window.docRef,{
