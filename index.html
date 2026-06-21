@@ -272,12 +272,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
+  apiKey: "AIzaSyAOuJYhfl6-FX-PY1rJJsHTSUT1T_C_GZw",
   authDomain: "gastos-76ac4.firebaseapp.com",
   projectId: "gastos-76ac4",
   storageBucket: "gastos-76ac4.firebasestorage.app",
   messagingSenderId: "465350630307",
-  appId: "TU_APP_ID"
+  appId: "1:465350630307:web:ce52bb2335662714d69816"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -288,7 +288,7 @@ window.getDoc = getDoc;
 window.setDoc = setDoc;
 window.onSnapshot = onSnapshot;
 </script>
-  
+</script>  
 const ICONS = {'Alimentación':'🛒','Mercadona':'🛒','Consum':'🛒','Carnicería':'🥩',
   'Bares y Restaurantes':'🍽️','Horno':'🥖','Hogar':'🏠','Gas':'🔥','Luz':'💡',
   'Gasolina':'⛽','Transporte':'🚗','Seguro Coche':'🚗','Salud':'❤️',
@@ -596,34 +596,7 @@ buildGrid();
 updateHeader();
 
 initFirebase();
-    <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAOuJYhfl6-FX-PY1rJJsHTSUT1T_C_GZw",
-  authDomain: "gastos-76ac4.firebaseapp.com",
-  projectId: "gastos-76ac4",
-  storageBucket: "gastos-76ac4.firebasestorage.app",
-  messagingSenderId: "465350630307",
-  appId: "1:465350630307:web:ce52bb2335662714d69816"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.docRef = doc(db,"app","datos");
-window.getDoc = getDoc;
-window.setDoc = setDoc;
-window.onSnapshot = onSnapshot;
-</script>
     
 </script>
 </body>
