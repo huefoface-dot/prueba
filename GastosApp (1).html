@@ -564,7 +564,21 @@ async function initFirebase(){
   });
 }
 // ── Init ────────────────────────────────────────────────────────
-setHoy(); buildGrid(); updateHeader();initFirebase();
+setHoy();
+buildGrid();
+updateHeader();
+
+const esperaFirebase = setInterval(() => {
+
+  if(window.firebaseReady){
+
+    clearInterval(esperaFirebase);
+
+    initFirebase();
+  }
+
+},100);
+  </script>
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -592,7 +606,8 @@ window.docRef = doc(db,"app","datos");
 window.getDoc = getDoc;
 window.setDoc = setDoc;
 window.onSnapshot = onSnapshot;
+window.firebaseReady = true;
 </script>
-</script>
+
 </body>
 </html>
