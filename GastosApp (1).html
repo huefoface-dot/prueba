@@ -285,10 +285,28 @@ let catSel = '';
 let mIdx   = -1;
 let filtros= new Set();
 
-function save(){ localStorage.setItem('g_regs',JSON.stringify(regs)); }
-function saveCats(){
+async function save(){
+
+  localStorage.setItem('g_regs',JSON.stringify(regs));
+
+  await window.setDoc(window.docRef,{
+    regs,
+    catsG,
+    catsI,
+    updated: Date.now()
+  });
+}
+async function saveCats(){
+
   localStorage.setItem('g_catsG',JSON.stringify(catsG));
   localStorage.setItem('g_catsI',JSON.stringify(catsI));
+
+  await window.setDoc(window.docRef,{
+    regs,
+    catsG,
+    catsI,
+    updated: Date.now()
+  });
 }
 
 // ── Fecha ───────────────────────────────────────────────────────
@@ -508,9 +526,73 @@ function updateHeader(){
   const MESES=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   document.getElementById('hSub').textContent=`${MESES[+m]} — ${mes.length} registros · ${eur(g)} en gastos`;
 }
+async function initFirebase(){
 
+  const snap = await window.getDoc(window.docRef);
+
+  if(snap.exists()){
+
+    const data = snap.data();
+
+    regs  = data.regs  || [];
+    catsG = data.catsG || DEFAULT_GASTO;
+    catsI = data.catsI || DEFAULT_INGRESO;
+
+    buildGrid();
+    updateHeader();
+  }
+
+  window.onSnapshot(window.docRef,(snap)=>{
+
+    if(!snap.exists()) return;
+
+    const data = snap.data();
+
+    regs  = data.regs  || [];
+    catsG = data.catsG || DEFAULT_GASTO;
+    catsI = data.catsI || DEFAULT_INGRESO;
+
+    buildGrid();
+
+    if(document.getElementById('p1').classList.contains('active'))
+      renderHist();
+
+    if(document.getElementById('p2').classList.contains('active'))
+      renderAjustes();
+
+    updateHeader();
+  });
+}
 // ── Init ────────────────────────────────────────────────────────
-setHoy(); buildGrid(); updateHeader();
+setHoy(); buildGrid(); updateHeader();initFirebase();
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAOuJYhfl6-FX-PY1rJJsHTSUT1T_C_GZw",
+  authDomain: "gastos-76ac4.firebaseapp.com",
+  projectId: "gastos-76ac4",
+  storageBucket: "gastos-76ac4.firebasestorage.app",
+  messagingSenderId: "465350630307",
+  appId: "1:465350630307:web:ce52bb2335662714d69816"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.docRef = doc(db,"app","datos");
+window.getDoc = getDoc;
+window.setDoc = setDoc;
+window.onSnapshot = onSnapshot;
+</script>
 </script>
 </body>
 </html>
